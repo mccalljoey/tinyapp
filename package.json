@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/mccalljoey/tinyapp/issues"
   },
-  "homepage": "https://github.com/mccalljoey/tinyapp#readme"
+  "homepage": "https://github.com/mccalljoey/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
