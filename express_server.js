@@ -18,6 +18,13 @@ const generateRandomString = function (data) {
   return string;
 };
 
+app.get("/u/:shortURL", (req, res)=> {
+  let shortURL = req.params['shortURL'];
+  console.log(req.params);
+  urlDatabase[shortURL] // {userID: ???, longURL: ????}
+  res.redirect(urlDatabase[shortURL].longURL);
+});
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
