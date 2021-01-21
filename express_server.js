@@ -95,12 +95,39 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.get("/urls/:id", (req, res) => {
+const shortURL = req.params.id;
+const user_ID = req.session.user_ID;
+const user = users[user_ID];
+if(urlDatabase[shortURL].userID === user_ID) {
+  const templateVars = { 
+    shortURL, 
+    longURL: urlDatabase[shortURL].longURL, 
+    user
+  };
+  res.render("urls_show", templateVars);
+} else if (!user) {
+res.status(403).send("You're not logged in!")
+} else {
+  res.status(403).send("This is not your account!")
+}
+});
+
+app.post("/urls/:id", (req, res) => {
+  if (req.session.user_ID === urlDatabase[req.params.id].userID) {
+    urlDatabase[req.params.id].longURL = req.body.longURL;
+    res.redirect(`/urls/${req.params.id}`);
+  } else {
+    res.status(550).send("You can't do that");
+  }
+});
+
 app.post("/urls/:id/delete", (req, res) => {
   if (req.session.user_ID === urlDatabase[req.params.id].userID) {
     delete urlDatabase[req.params.id]
     res.redirect("/urls")
   } else {
-    res.status(550).send("Error 505: Something went wrong!");
+    res.status(550).send("Something went wrong!");
   }
 });
 
@@ -129,6 +156,16 @@ app.post("/login", (req, res) => {
     res.redirect("/urls");
     }
   });
+
+  function urlsForUser(id) {
+    let userURLs = {};
+    for (let urlKey in urlDatabase) {
+      if ( id === urlDatabase[urlKey].userID) {
+        userURLs[urlKey] = urlDatabase[urlKey];
+      }
+    }
+    return userURLs;
+  };
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
