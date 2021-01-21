@@ -1,10 +1,14 @@
+const bodyParser = require("body-parser");
+
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 app.use(bodyParser.urlencoded({extended: true}));
-
+const { request } = require("express");
+const salt = bcrypt.genSaltSync(10);
+const { getUserByEmail } = require('./helper.js');
 
 
 app.set("view engine", "ejs");
