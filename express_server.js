@@ -19,6 +19,8 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
 
+// Database objects
+
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
@@ -37,6 +39,8 @@ const urlDatabase = {
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
+// URLs, new, short, id, delete, login, logout, register, functions
+
 app.get("/urls", (req, res) => {
   const user_ID = req.session.user_ID;
   const user = users[user_ID];
@@ -45,6 +49,15 @@ app.get("/urls", (req, res) => {
     user: user
   };
   res.render("urls_index", templateVars);
+});
+
+app.post("/urls", (req, res) => {
+  const userID = req.session.user_ID;
+  console.log(req.body); 
+  const shortURL = generateRandomString(6);
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = {longURL, userID}; 
+  res.redirect("/urls");
 });
 
 app.get("/urls/new", (req, res) => {
@@ -58,24 +71,6 @@ app.get("/urls/new", (req, res) => {
       res.render("urls_login", templateVars)
     };
 });
-
-app.post("/urls", (req, res) => {
-  const userID = req.session.user_ID;
-  console.log(req.body); 
-  const shortURL = generateRandomString(6);
-  const longURL = req.body.longURL;
-  urlDatabase[shortURL] = {longURL, userID}; 
-  res.redirect("/urls");
-});
-
-const generateRandomString = function (data) {
-  let string = ""
-  let alphaNum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvxyz0123456789";
-  for (let i = 0; i < data; i++) { 
-  string += alphaNum[Math.floor(Math.random() * 62)];
-  }
-  return string;
-};
 
 app.get("/u/:shortURL", (req, res)=> {
   let shortURL = req.params['shortURL'];
@@ -123,6 +118,18 @@ app.post("/urls/:id/delete", (req, res) => {
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+});
+
+app.get("/login", (req, res) => {
+  const user_ID = req.session.user_ID;
+  const templateVars = {
+    user: users[user_ID]
+  };
+  if (user_ID) {
+    res.redirect("/urls")
+  } else {
+    res.render("urls_login", templateVars)
+  };
 });
 
 app.post("/login", (req, res) => {
@@ -194,17 +201,14 @@ function urlsForUser(id) {
   return userURLs;
 };
 
-app.get("/login", (req, res) => {
-  const user_ID = req.session.user_ID;
-  const templateVars = {
-    user: users[user_ID]
-  };
-  if (user_ID) {
-    res.redirect("/urls")
-  } else {
-    res.render("urls_login", templateVars)
-  };
-});
+const generateRandomString = function (data) {
+  let string = ""
+  let alphaNum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvxyz0123456789";
+  for (let i = 0; i < data; i++) { 
+  string += alphaNum[Math.floor(Math.random() * 62)];
+  }
+  return string;
+};
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
